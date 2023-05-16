@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -281,7 +280,7 @@ public class MediaManager {
                 Timber.i("creating audio player using: exoplayer");
                 nativeMode = true;
                 mExoPlayer = new ExoPlayer.Builder(context).build();
-                mExoPlayer.addListener(new Player.Listener() {
+                mExoPlayer.addListener(new Player.EventListener() {
                     @Override
                     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                         if (playbackState == Player.STATE_READY) {
@@ -723,10 +722,7 @@ public class MediaManager {
                     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context, "ATV/ExoPlayer");
 
                     mExoPlayer.setPlayWhenReady(true);
-                    Uri mediaUri = Uri.parse(response.ToUrl(apiClient.getApiUrl(), apiClient.getAccessToken()));
-                    MediaItem source = new MediaItem.Builder().setUri(mediaUri).build();
-                    mExoPlayer.setMediaSource(new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(source));
-                    mExoPlayer.prepare();
+                    mExoPlayer.prepare(new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(response.ToUrl(apiClient.getApiUrl(), apiClient.getAccessToken()))));
                 } else {
                     Timber.i("Playback attempt via VLC of %s", response.getMediaUrl());
                     Media media = new Media(mLibVLC, Uri.parse(response.getMediaUrl()));
